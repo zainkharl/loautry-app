@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ApniApp - Android Native Edition</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 🎨 THEME LIGHT / NATIVE RESET FOR ANDROID */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none; 
+        }
+        
+        html, body { 
+            width: 100%;
+            height: 100%;
+            background: #f8fafc; 
+            overflow: hidden; 
+            position: fixed; 
+        }
+        
+        /* 📱 FULL NATIVE FRAMEWORK */
+        .phone-container { 
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #f8fafc; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+        }
+
+        /* 🌟 FULL COLOR SPLASH SCREEN */
+        #splash-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #064e3b 0%, #10b981 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100000; 
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1); 
+        }
+
+        .splash-logo {
+            font-size: 50px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            text-align: center;
+            position: relative;
+            background: linear-gradient(to right, #ffffff 20%, #a7f3d0 40%, #ffffff 60%, #ffffff 80%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+            animation: textShineFlash 2s linear infinite;
+        }
+
+        @keyframes textShineFlash {
+            0% { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+        
+        /* 🚀 AUTH SCREEN */
+        #auth-screen { 
+            display: none; 
+            padding: 30px 24px; 
+            flex-direction: column; 
+            justify-content: center; 
+            background: linear-gradient(145deg, #062c15 0%, #020617 100%); 
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 99999; 
+            text-align: center;
+        }
+        
+        .brand-logo-area { margin-bottom: 35px; }
+        .brand-logo-area i {
+            font-size: 55px;
+            color: #10b981;
+            filter: drop-shadow(0 0 15px rgba(16,185,129,0.4));
+            margin-bottom: 10px;
+        }
+        .brand-logo-area h2 { color: #ffffff; font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+        .brand-logo-area p { color: #94a3b8; font-size: 13px; margin-top: 5px; }
+        
+        .auth-form-group { width: 100%; margin-bottom: 15px; }
+        .auth-input { 
+            width: 100%; 
+            padding: 14px 16px; 
+            margin: 6px 0; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 14px; 
+            font-size: 15px; 
+            outline: none; 
+            background: rgba(255, 255, 255, 0.05); 
+            color: #ffffff;
+            user-select: text; 
+        }
+        .auth-input::placeholder { color: #64748b; }
+        .auth-input:focus { border-color: #10b981; background: rgba(255, 255, 255, 0.08); }
+        
+        .auth-btn-primary { 
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+            color: white; border: none; padding: 15px; border-radius: 14px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 10px; font-size: 16px; 
+        }
+        
+        .auth-toggle-link { color: #94a3b8; font-size: 13px; margin-top: 20px; cursor: pointer; }
+        .auth-toggle-link span { color: #10b981; font-weight: 700; text-decoration: underline; }
+
+        /* 👑 MAIN APPLICATION LAYER */
+        #main-app { 
+            display: none; 
+            flex-direction: column; 
+            width: 100%; 
+            height: 100%; 
+        }
+
+        /* FIXED TOP HEADER */
+        .header { 
+            background: linear-gradient(135deg, #064e3b 0%, #10b981 100%); 
+            padding: 16px 16px 14px 16px; 
+            color: white; 
+            border-bottom-left-radius: 20px; 
+            border-bottom-right-radius: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 105px; 
+            z-index: 1000;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        
+        .header h1 { font-size: 20px; font-weight: 800; text-align: center; margin-bottom: 8px; cursor: pointer; }
+        
+        .user-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.18); padding: 6px 12px; border-radius: 16px; font-size: 12.5px; }
+        .profile-trigger { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 600; }
+        .wallet-badge { background: #fff; color: #1e293b; padding: 4px 10px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+        .deposit-trigger-btn { background: #10b981; color: white; border: none; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; font-weight: 800; margin-left: 4px; }
+
+        /* NATIVE SCROLL CONTENT BOX */
+        .content-area { 
+            position: absolute;
+            top: 105px; 
+            bottom: 60px; 
+            left: 0;
+            right: 0;
+            overflow-y: scroll; 
+            padding: 14px; 
+            -webkit-overflow-scrolling: touch; 
+        }
+        .content-area::-webkit-scrollbar { display: none; } 
+        
+        /* 📺 PREMIUM SQUARE VIDEO AD CONTAINER */
+        .video-ad-wrapper {
+            width: 100%;
+            height: 340px; 
+            background: #000;
+            border-radius: 24px;
+            overflow: hidden;
+            margin-bottom: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            position: relative;
+            border: 1px solid #e2e8f0;
+        }
+        .video-ad-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; 
+        }
+        
+        /* 🎯 PRODUCT TILES */
+        .card { background: white; border-radius: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.02); padding: 14px; margin-bottom: 16px; border: 1px solid #f1f5f9; position: relative; }
+        .card-img-wrapper { width: 100%; height: 160px; background: #f8fafc; border-radius: 14px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .card-img { width: 85%; height: 85%; object-fit: contain; }
+        
+        .badge-ps { position: absolute; top: 20px; left: 20px; background: #0070d1; color: white; padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 800; }
+        
+        /* 👑 LIVE USERS COUNTER BADGE */
+        .user-counter-badge { position: absolute; top: 20px; right: 20px; background: rgba(16, 185, 129, 0.9); backdrop-filter: blur(4px); color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .user-counter-badge span { color: #ffffff; font-weight: 800; }
+
+        /* 🎯 NEW WINNER ANNOUNCED BADGE */
+        .winner-announced-tag {
+            display: none;
+            background: #fbbf24;
+            color: #0f172a;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 8px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(251,191,36,0.4);
+        }
+        
+        .card-title { font-size: 16px; font-weight: 700; margin: 10px 0 4px 0; color: #0f172a; }
+        .token-price { color: #64748b; font-size: 12.5px; margin-bottom: 10px; font-weight: 500; }
+        .action-btn { background: #10b981; color: white; border: none; width: 100%; padding: 11px; border-radius: 11px; font-weight: 700; cursor: pointer; font-size: 14px; transition: background 0.3s; }
+        .action-btn:disabled { background: #cbd5e1 !important; color: #64748b !important; cursor: not-allowed; }
+
+        .section-heading { font-size: 13px; font-weight: 800; color: #1e293b; margin: 20px 0 12px 2px; letter-spacing: 0.3px; }
+
+        /* SUB VIEWS */
+        #view-tickets, #view-winners, #view-ceo, #view-support, #view-settings { display: none; }
+        .ticket-item { background: white; border-left: 4px solid #10b981; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.01); }
+
+        /* 🧭 FIXED BOTTOM BAR NAVIGATION */
+        .bottom-nav { 
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            right: 0;
+            height: 60px; 
+            background: rgba(255, 255, 255, 0.96); 
+            backdrop-filter: blur(10px); 
+            border-top: 1px solid #e2e8f0; 
+            display: flex; 
+            justify-content: space-around; 
+            padding-top: 8px;
+            z-index: 1000; 
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10.5px; color: #94a3b8; background: none; border: none; cursor: pointer; font-weight: 600; width: 20%; gap: 2px; }
+        .nav-item.active { color: #10b981; }
+        .nav-item.icon { font-size: 16px; }
+
+        /* OVERLAY SIDEBAR DRAWER */
+        .sidebar-overlay { position: absolute; top: 0; left: 0; right:0; bottom:0; background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(3px); z-index: 10000; display: none; opacity: 0; transition: opacity 0.2s ease; }
+        .sidebar { position: absolute; top: 0; left: -280px; width: 260px; bottom:0; background: white; z-index: 10001; box-shadow: 4px 0 15px rgba(0,0,0,0.08); display: flex; flex-direction: column; transition: left 0.25s ease; padding: 30px 16px 16px 16px; }
+        .sidebar-user-header { border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 15px; text-align: center; position: relative; }
+        
+        .sidebar-avatar-container { position: relative; width: 65px; height: 65px; margin: 0 auto 8px auto; }
+        .sidebar-avatar { width: 55px; height: 55px; background: #e8f5e9; color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; border: 2px solid #10b981; margin: 5px auto; }
+        .sidebar-gear-normal-btn { position: absolute; top: 0; right: 0; background: #475569; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; border: 1px solid white; }
+
+        .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #f1f5f9; font-size: 13px; color: #64748b; }
+        .logout-btn { background: #ef4444; color: white; border: none; width: 100%; padding: 11px; border-radius: 10px; font-weight: 700; cursor: pointer; margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 13.5px; }
+
+        .setting-switch-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: white; border-radius: 12px; margin-bottom: 8px; border: 1px solid #e2e8f0; font-size: 13.5px; color: #334155; font-weight: 600; }
+
+        /* DEPOSIT MODAL WITH INSTRUCTIONS */
+        .modal-popup { display: none; position: absolute; top: 0; left: 0; right:0; bottom:0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); z-index: 20000; justify-content: center; align-items: center; padding: 16px; }
+        .modal-content { background: white; width: 100%; max-width: 340px; border-radius: 20px; padding: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.25); max-height: 90vh; overflow-y: auto; }
+        .modal-content::-webkit-scrollbar { display: none; }
+        .modal-title { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 12px; text-align: center; }
+        
+        .instruction-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 12px; font-size: 11.5px; color: #166534; margin-bottom: 12px; line-height: 1.4; }
+        .instruction-box strong { color: #14532d; }
+        .instruction-box ol { margin-left: 15px; margin-top: 4px; }
+        
+        .till-display-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; padding: 12px; border-radius: 14px; text-align: center; margin-bottom: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+        .till-app-name { font-size: 15px; font-weight: 800; color: #10b981; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .till-id-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; background: rgba(255,255,255,0.08); padding: 6px; border-radius: 8px; }
+        .till-number { font-family: monospace; font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: 1px; }
+        .copy-btn-icon { background: none; border: none; color: #fbbf24; cursor: pointer; font-size: 14px; padding: 2px 6px; display: flex; align-items: center; justify-content: center; transition: transform 0.1s; }
+        .copy-btn-icon:active { transform: scale(0.85); color: #10b981; }
+
+        .slip-box { background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 12px; text-align: center; margin-top: 8px; cursor: pointer; }
+        .slip-preview { width: 100%; height: 110px; object-fit: cover; border-radius: 6px; display: none; margin-top: 8px; }
+        
+        /* CEO PANEL ENGINE */
+        .ceo-section { background: white; padding: 14px; border-radius: 14px; margin-bottom: 12px; border: 1px solid #e2e8f0; position: relative; }
+        .ceo-input { width: 100%; padding: 8px; margin: 4px 0 10px 0; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12.5px; background: #fff; color: #000; user-select: text; }
+        .ceo-select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; margin-bottom: 12px; background: #fff; color: #0f172a; font-weight: 600; }
+        
+        .approval-row, .complaint-row { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; margin-top: 8px; font-size: 11.5px; }
+        .approval-screenshot { width: 100%; height: 85px; object-fit: cover; background: #eaedf2; border-radius: 6px; margin: 5px 0; border: 1px solid #cbd5e1; }
+        .approve-btn { background: #10b981; color: white; border: none; width: 100%; padding: 8px; border-radius: 7px; font-weight: 700; font-size: 11.5px; cursor: pointer; }
+
+        /* LIGHTBOX SYSTEM */
+        .lightbox-overlay { display: none; position: absolute; top: 0; left: 0; right:0; bottom:0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px); z-index: 30000; justify-content: center; align-items: center; padding: 12px; }
+        .lightbox-content { position: relative; max-width: 100%; max-height: 80%; }
+        .lightbox-img { max-width: 100%; max-height: 75vh; border-radius: 10px; object-fit: contain; }
+        .lightbox-close { position: absolute; top: -35px; right: 0; background: white; color: #000; border: none; width: 28px; height: 28px; border-radius: 50%; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+
+        /* SPIN WHEEL */
+        .wheel-container { display: flex; flex-direction: column; align-items: center; margin: 10px 0; }
+        .wheel { width: 140px; height: 140px; border-radius: 50%; border: 6px solid #1e293b; position: relative; transition: transform 4s cubic-bezier(0.1, 0.8, 0.3, 1); background: conic-gradient(#10b981 0% 25%, #3b82f6 25% 50%, #f59e0b 50% 75%, #ef4444 75% 100%); }
+        .wheel-pointer { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 16px solid #ef4444; position: absolute; top: -12px; z-index: 10; }
+        .spin-btn { background: #fbbf24; color: #0f172a; font-weight: 800; border: none; padding: 8px 18px; border-radius: 16px; margin-top: 10px; font-size: 12.5px; cursor: pointer; }
+        
+        /* REUSEABLE STYLES */
+        .reset-btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer; margin-top: 12px; box-shadow: 0 4px 10px rgba(239,68,68,0.2); text-align: center; display: block; }
+        .reset-btn-danger:active { transform: scale(0.98); }
+
+        /* SUPPORT PORTAL */
+        .support-textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 13px; outline: none; resize: none; margin-bottom: 8px; background: white; color: #0f172a; user-select: text; }
+        .media-row-tools { display: flex; gap: 6px; margin-bottom: 10px; }
+        .media-btn { flex: 1; background: #f1f5f9; color: #475569; padding: 8px; border-radius: 8px; font-size: 11px; font-weight: 700; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .media-btn.recording { background: #fef2f2; border-color: #ef4444; color: #ef4444; animation: pulseRed 1.5s infinite; }
+        
+        @keyframes pulseRed { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .chat-bubbles-container { margin-top: 12px; background: #f8fafc; border-radius: 14px; padding: 8px; max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; -webkit-overflow-scrolling: touch; }
+        .bubble { padding: 8px 10px; border-radius: 12px; font-size: 12px; margin-bottom: 6px; max-width: 85%; line-height: 1.4; }
+        .bubble.user { background: #10b981; color: white; margin-left: auto; border-bottom-right-radius: 2px; }
+        .bubble.ceo { background: #1e293b; color: #fbc02d; margin-right: auto; border-bottom-left-radius: 2px; border-left: 3px solid #fbbf24; }
+        .bubble img { max-width: 100%; border-radius: 6px; margin-top: 4px; display: block; }
+        .audio-player-mock { display: flex; align-items: center; gap: 5px; background: rgba(0,0,0,0.06); padding: 5px 8px; border-radius: 6px; font-size: 10.5px; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    <div id="splash-screen">
+        <div class="splash-logo">ApniApp</div>
+    </div>
+
+    <div id="auth-screen">
+        <div class="brand-logo-area">
+            <i class="fa-solid fa-shield-halved"></i>
+            <h2 id="auth-title-text">Log In</h2>
+            <p id="auth-sub-text">Welcome back! Access your profile token panel.</p>
+        </div>
+        
+        <div class="auth-form-group">
+            <input type="text" id="auth-user" class="auth-input" placeholder="Username">
+            <input type="email" id="auth-email" class="auth-input" placeholder="Email ID" style="display: none;">
+            <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
+        </div>
+        
+        <button id="auth-action-btn" onclick="processAuthAction()" class="auth-btn-primary">Login</button>
+        
+        <div class="auth-toggle-link" id="auth-switcher" onclick="toggleAuthMode()">
+            Don't have an account? <span>Create New Account</span>
+        </div>
+    </div>
+
+    <div id="main-app">
+        <div class="header">
+            <h1 onclick="handleHeaderSecretClick()">ApniApp</h1>
+            
+            <div class="user-bar">
+                <div class="profile-trigger" onclick="openSidebarDrawer()">
+                    <span><i class="fa-solid fa-circle-user"></i> Welcome, <strong id="username-display">User</strong></span>
+                </div>
+                <span class="wallet-badge">
+                    <i class="fa-solid fa-wallet" style="color: #10b981;"></i> Rs. <strong id="wallet-amount">0</strong>
+                    <button class="deposit-trigger-btn" onclick="openDepositModal()">+</button>
+                </span>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div id="view-home">
+                <div class="video-ad-wrapper">
+                    <video id="app-promo-video" autoplay loop controls muted playsinline>
+                        <source id="video-source" src="https://assets.mixkit.co/videos/preview/mixkit-delivery-man-with-a-motorcycle-carrying-a-package-42250-large.mp4" type="video/mp4">
+                    </video>
+                </div>
+
+                <div class="section-heading">🔥 LIVE EXCLUSIVE DRAWS</div>
+
+                <div class="card" id="card-live">
+                    <div class="winner-announced-tag" id="winner-tag-live">🏆 WINNER ANNOUNCED!</div>
+                    <span class="badge-ps">Ps</span>
+                    <div class="card-img-wrapper">
+                        <img id="live-draw-img" src="https://www.pngmart.com/files/23/iPhone-15-Pro-Max-PNG.png" class="card-img" alt="">
+                    </div>
+                    <div class="user-counter-badge" id="counter-badge-container-live">Active Token Users: <span id="iphone-user-counter">0</span></div>
+                    
+                    <div class="card-title" id="live-draw-title">iPhone 15 Pro (256GB)</div>
+                    <div class="token-price">Token Price: Rs. <span id="live-draw-price-display">1</span></div>
+                    <button class="action-btn" id="live-draw-btn" onclick="triggerTicketPurchase('live')">BUY ENTRY TOKEN (Rs. 1)</button>
+                </div>
+            </div>
+
+            <div id="view-tickets">
+                <div id="no-tickets-msg">
+                    <h3 style="font-size: 13px; padding: 40px 0; text-align: center; color: #94a3b8; font-weight: 500;">
+                        <i class="fa-solid fa-ticket-simple" style="display:block; font-size:24px; margin-bottom:8px; color:#cbd5e1;"></i>
+                        No Tickets Purchased Yet
+                    </h3>
+                </div>
+                <div id="tickets-list-container"></div>
+            </div>
+
+            <div id="view-winners">
+                <div style="background: white; border-radius: 14px; padding: 16px; text-align: center; border: 1px solid #e2e8f0; margin-top: 5px;">
+                    <i class="fa-solid fa-trophy" style="font-size: 32px; color: #fbc02d; margin-bottom: 8px;"></i>
+                    <p id="winner-announcement-text" style="font-size: 13.5px; color: #334155; font-weight: 600;">Draw Announcement Coming Soon!</p>
+                </div>
+            </div>
+
+            <div id="view-support">
+                <h2 style="font-size: 16px; color: #0f172a; margin-bottom: 4px;"><i class="fa-solid fa-headset" style="color: #10b981;"></i> Support Ticket Portal</h2>
+                <p style="font-size: 11.5px; color: #64748b; margin-bottom: 10px;">Complain type karain, voice record karain ya slip attach karain.</p>
+                
+                <div style="background: white; padding: 12px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                    <textarea id="complaint-text-input" class="support-textarea" placeholder="Type your issue details here..."></textarea>
+                    
+                    <div class="media-row-tools">
+                        <button type="button" class="media-btn" id="voice-record-btn" onclick="toggleVoiceRecordingOffline()">
+                            <i class="fa-solid fa-microphone"></i> <span id="voice-btn-text">Voice Rec</span>
+                        </button>
+                        <button type="button" class="media-btn" onclick="document.getElementById('complaint-screenshot-loader').click()">
+                            <i class="fa-solid fa-image"></i> <span>Screenshot</span>
+                        </button>
+                    </div>
+                    
+                    <input type="file" id="complaint-screenshot-loader" accept="image/*" style="display:none;" onchange="handleComplaintScreenshot(this)">
+                    <div id="complaint-img-attached-preview" style="display:none; font-size:11px; color:#10b981; font-weight:600; margin-bottom:8px;">
+                        <i class="fa-solid fa-paperclip"></i> Image Proof Attached ✓
+                    </div>
+                    <div id="complaint-audio-attached-preview" style="display:none; font-size:11px; color:#3b82f6; font-weight:600; margin-bottom:8px;">
+                        <i class="fa-solid fa-waveform-lines"></i> Audio Note Recorded (3.2s) ✓
+                    </div>
+                    
+                    <button class="action-btn" onclick="submitMultimediaComplaint()" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">Submit Support Ticket</button>
+                </div>
+
+                <div class="section-heading">💬 LIVE CHAT HISTORY & CEO REPLIES</div>
+                <div class="chat-bubbles-container" id="user-chat-history-box">
+                    <div class="bubble ceo" id="empty-chat-placeholder">
+                        Welcome to ApniApp Care. Your support logs appear instantly here!
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-settings">
+                <h2 style="font-size: 16px; color: #0f172a; margin-bottom: 10px;"><i class="fa-solid fa-gear" style="color: #475569;"></i> App Preferences</h2>
+                <div class="setting-switch-row">
+                    <span><i class="fa-solid fa-moon"></i> Dark Mode Interface</span>
+                    <input type="checkbox" checked style="accent-color: #10b981; width: 15px; height: 15px;">
+                </div>
+                <div class="setting-switch-row">
+                    <span><i class="fa-solid fa-bell"></i> Push Live Draw Alerts</span>
+                    <input type="checkbox" checked style="accent-color: #10b981; width: 15px; height: 15px;">
+                </div>
+                <div class="setting-switch-row" onclick="alert('TinyDB Cache Memory Cleared successfully!')" style="cursor: pointer;">
+                    <span><i class="fa-solid fa-trash-can"></i> Clear Diagnostics Cache</span>
+                    <span style="font-size: 11px; color: #10b981; font-weight: 800;">12 KB</span>
+                </div>
+                <p style="font-size: 11px; color: #94a3b8; text-align: center; margin-top: 15px;">ApniApp Core Engine v2.4.0 (Stable)</p>
+            </div>
+
+            <div id="view-ceo">
+                <h2 style="font-size: 16px; color: #0f172a; margin-bottom: 12px;"><i class="fa-solid fa-user-gear" style="color: #f59e0b;"></i> CEO Admin Portal</h2>
+                
+                <div class="ceo-section" style="border: 1px solid #fbbf24; background: #fffdf5; text-align: center;">
+                    <h4 style="font-size: 13px; color: #b45309; margin-bottom: 10px;"><i class="fa-solid fa-trophy"></i> Lucky Draw Selector & Engine</h4>
+                    
+                    <label style="font-size: 11px; font-weight: 700; color: #475569; display: block; margin-bottom: 5px; text-align: left;">Select Deal for Action:</label>
+                    <select id="ceo-draw-deal-select" class="ceo-select">
+                        <option value="live">iPhone 15 Panel Draw</option>
+                    </select>
+
+                    <div class="wheel-container">
+                        <div class="wheel-pointer"></div>
+                        <div id="spin-wheel" class="wheel"></div>
+                        <button class="spin-btn" onclick="executeCeoLuckySpin()">SPIN DRAW NOW</button>
+                    </div>
+
+                    <button class="reset-btn-danger" onclick="executeManualCeoReset()">
+                        <i class="fa-solid fa-arrow-rotate-left"></i> RESET SELECTED DEAL & TOKENS
+                    </button>
+                </div>
+
+                <div class="ceo-section" style="border: 1px solid #ef4444; background: #fef2f2;">
+                    <h4 style="font-size: 12px; color: #b91c1c; margin-bottom: 4px;"><i class="fa-solid fa-envelope-open-text"></i> Complaints Panel Desk</h4>
+                    <div id="ceo-complaints-list">
+                        <p style="color: #94a3b8; font-size: 11px; text-align: center; padding: 6px 0;">No active user complaints found.</p>
+                    </div>
+                </div>
+
+                <div class="ceo-section" style="border: 1px solid #10b981; background: #f0fdf4;">
+                    <h4 style="font-size: 12px; color: #15803d;"><i class="fa-solid fa-tags"></i> Live Image & Deal Details Configurator</h4>
+                    
+                    <div style="margin-top: 8px;">
+                        <span style="font-size: 11px; font-weight: 700; color: #1e3a8a;">[ Deal - Live iPhone Setup ]</span>
+                        <div style="margin-top: 4px;">
+                            <label style="font-size: 10.5px; font-weight: 600; color: #334155;">Deal Title/Name:</label>
+                            <input type="text" id="ceo-live-title-input" class="ceo-input" value="iPhone 15 Pro (256GB)">
+                            
+                            <label style="font-size: 10.5px; font-weight: 600; color: #334155;">Modify Ticket Price (Rs.):</label>
+                            <input type="number" id="ceo-live-price-input" class="ceo-input" value="1">
+                            
+                            <label style="font-size: 10.5px; font-weight: 600; color: #334155;">Replace Live Deal Photo:</label>
+                            <input type="file" id="ceo-live-img-file" accept="image/*" class="ceo-input" onchange="uploadLiveDealPhoto(this)">
+                        </div>
+                        <button class="approve-btn" style="background:#3b82f6;" onclick="updateTokenPricesAndDetailsOffline('live')">Save iPhone Configurations</button>
+                    </div>
+                    
+                    <button class="action-btn" onclick="triggerAdminCloudSave()" style="margin-top:14px; background:linear-gradient(135deg, #059669 0%, #064e3b 100%); font-size:12px; padding:10px;">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> PUSH MODIFICATIONS TO LIVE CLOUD
+                    </button>
+                </div>
+
+                <div class="ceo-section" style="border: 1px solid #475569; background: #f8fafc;">
+                    <h4 style="font-size: 12px; color: #334155; margin-bottom: 6px;"><i class="fa-solid fa-clapperboard"></i> Global Video Stream Settings</h4>
+                    <label style="font-size: 11px; font-weight: 600; color: #475569;">Select local video source to broadcast:</label>
+                    <input type="file" id="ceo-video-file" accept="video/*" class="ceo-input" onchange="changePromoVideoOffline(this)">
+                </div>
+
+                <div class="ceo-section" style="border: 1px solid #0f172a;">
+                    <h4 style="font-size: 12px; color: #000; margin-bottom: 8px;"><i class="fa-solid fa-cash-register"></i> User Ledger Deposit Verification Box</h4>
+                    <div id="ceo-approvals-list-container">
+                        <p style="color: #94a3b8; font-size: 11px; text-align: center; padding: 10px 0;">No pending deposit receipts requested.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="switchTabRouting('home', this)">
+                <span class="nav-icon"><i class="fa-solid fa-house"></i></span><span>Home</span>
+            </button>
+            <button class="nav-item" onclick="switchTabRouting('tickets', this)">
+                <span class="nav-icon"><i class="fa-solid fa-ticket"></i></span><span>Tickets</span>
+            </button>
+            <button class="nav-item" onclick="switchTabRouting('winners', this)">
+                <span class="nav-icon"><i class="fa-solid fa-trophy"></i></span><span>Winners</span>
+            </button>
+            <button class="nav-item" onclick="switchTabRouting('support', this)">
+                <span class="nav-icon"><i class="fa-solid fa-headset"></i></span><span>Support</span>
+            </button>
+            <button class="nav-item" onclick="openSidebarDrawer()">
+                <span class="nav-icon"><i class="fa-solid fa-bars"></i></span><span>Menu</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="depositModal" class="modal-popup">
+        <div class="modal-content" id="deposit-modal-body">
+            <div id="deposit-form-view">
+                <div class="modal-title">💸 Deposit Funds</div>
+                <div class="instruction-box">
+                    <strong>💡 How to Deposit via Till ID:</strong>
+                    <ol>
+                        <li>Apne <strong>EasyPaisa</strong> ya <strong>JazzCash</strong> app mein jayen.</li>
+                        <li><strong>"Till Payment"</strong> ya <strong>"QR Payment"</strong> ka option select karain.</li>
+                        <li>Niche di gayi Till ID enter karain aur payment send karain.</li>
+                        <li>Payment ke baad transaction slip ka screenshot lekar niche upload karain.</li>
+                    </ol>
+                </div>
+
+                <div class="till-display-card">
+                    <div class="till-app-name">ApniApp</div>
+                    <div style="font-size: 11px; color: #94a3b8;">Official Merchant Till ID</div>
+                    <div class="till-id-row">
+                        <span class="till-number" id="merchant-till-id-value">983380652</span>
+                        <button class="copy-btn-icon" onclick="copyTillIdToClipboard()" title="Copy Till ID">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <label style="font-size: 11.5px; color: #475569; font-weight: 600;">Enter Amount (Rs.): <span style="color:#ef4444;">(Min Rs. 100)</span></label>
+                <input type="number" id="dep-amount-input" class="auth-input" style="color:#000; border:1px solid #cbd5e1; background:#fff;" placeholder="e.g. 500">
+                
+                <div class="slip-box" onclick="document.getElementById('slip-file-loader').click()">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size:20px; color:#64748b; margin-bottom:4px;"></i>
+                    <p style="font-size:12px; color:#475569; font-weight:600;">Upload Transaction Screenshot</p>
+                    <input type="file" id="slip-file-loader" accept="image/*" style="display:none;" onchange="previewDepositSlip(this)">
+                    <img id="slip-preview-img" class="slip-preview" src="" alt="Slip Preview">
+                </div>
+
+                <button class="auth-btn-primary" style="margin-top:15px;" onclick="submitDepositSlipProof()">Submit Payment Proof</button>
+                <button class="action-btn" style="background:#94a3b8; margin-top:8px; font-size:13px;" onclick="closeDepositModal()">Cancel</button>
+            </div>
+
+            <div id="deposit-slip-view" style="display: none; text-align: center; padding: 10px 0;">
+                <i class="fa-solid fa-circle-check" style="font-size: 48px; color: #10b981; margin-bottom: 10px;"></i>
+                <h3 style="font-size: 16px; color: #0f172a;">Request Transmitted!</h3>
+                <p style="font-size: 12px; color: #64748b; margin-top: 6px; line-height: 1.4;">Aapki transaction verification state me chali gayi hai. CEO dashboard verification ke baad balance update ho jayega.</p>
+                
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:12px; margin:15px 0; text-align:left; font-size:12px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Amount:</span><strong id="invoice-amount-text" style="color:#0f172a;">Rs. 0</strong></div>
+                    <div style="display:flex; justify-content:space-between;"><span>Ticket Reference:</span><strong id="invoice-code-text" style="color:#10b981; font-family:monospace;">#00000</strong></div>
+                </div>
+                <button class="auth-btn-primary" onclick="closeDepositModal()">Understood ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebarDrawer()"></div>
+    <div class="sidebar" id="sidebarDrawer">
+        <div class="sidebar-user-header">
+            <div class="sidebar-avatar-container">
+                <div class="sidebar-avatar"><i class="fa-solid fa-user"></i></div>
+                <button class="sidebar-gear-normal-btn" onclick="openRealAppSettingsView()"><i class="fa-solid fa-gear"></i></button>
+            </div>
+            <h3 style="font-size:15px; color:#0f172a; font-weight:800;" id="sidebar-username-title">@User</h3>
+            <p style="font-size:11px; color:#94a3b8; margin-top:2px;">Premium Member Node</p>
+        </div>
+
+        <div class="detail-row">
+            <span>Account Balance</span>
+            <strong style="color:#10b981;" id="sidebar-wallet-view">Rs. 0</strong>
+        </div>
+        <div class="detail-row">
+            <span>Tickets Active</span>
+            <strong style="color:#3b82f6;" id="sidebar-tickets-count">0 Tokens</strong>
+        </div>
+        <div class="detail-row" onclick="alert('Secure Key Node Validation Success!')" style="cursor:pointer;">
+            <span>Security ID</span>
+            <span style="font-family:monospace; font-size:11px; font-weight:700; color:#1e293b;">NODE-7492</span>
+        </div>
+
+        <button class="logout-btn" onclick="triggerAppLogoutSequence()">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout Account
+        </button>
+    </div>
+
+    <div class="lightbox-overlay" id="globalLightbox" onclick="closeLightbox()">
+        <div class="lightbox-content" onclick="event.stopPropagation()">
+            <button class="lightbox-close" onclick="closeLightbox()">×</button>
+            <img class="lightbox-img" id="lightboxTargetImg" src="" alt="Verification Receipt Preview">
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- STATE MANAGEMENT ---
+    let currentBalance = 0;
+    let isSignUpMode = false;
+    let currentUploadedSlipBase64 = "";
+    let currentUsername = "User";
+    let liveDrawPrice = 1;
+    let iphoneTokensBoughtCount = 0;
+    let purchasedTickets = [];
+    let tempAttachedScreenshotBase64 = "";
+    let isVoiceRecordingActive = false;
+    let tempAudioRecordedState = false;
+    let secretHeaderClickCount = 0;
+    let secretHeaderTimeout;
+    let lastTrackedLiveTitle = "iPhone 15 Pro (256GB)";
+    let liveDrawWinner = "";
+
+    // 🔒 CLOUD PERSISTENT TOKENS STATE VARIABLES
+    let cloudBoughtLive = false;
+
+    // ⏳ FULL SESSION APP-LAUNCH CONTROLLER
+    window.addEventListener('DOMContentLoaded', () => {
+        const splash = document.getElementById('splash-screen');
+        const authScreen = document.getElementById('auth-screen');
+        const mainApp = document.getElementById('main-app');
+
+        if(localStorage.getItem('apniApp_username')) currentUsername = localStorage.getItem('apniApp_username');
+        if(localStorage.getItem('apniApp_balance')) currentBalance = parseInt(localStorage.getItem('apniApp_balance')) || 0;
+        
+        if(localStorage.getItem('deal_title_live')) lastTrackedLiveTitle = localStorage.getItem('deal_title_live');
+        if(localStorage.getItem('deal_price_live')) liveDrawPrice = parseInt(localStorage.getItem('deal_price_live')) || 1;
+
+        document.getElementById('live-draw-title').innerText = lastTrackedLiveTitle;
+        document.getElementById('live-draw-price-display').innerText = liveDrawPrice;
+
+        setTimeout(() => {
+            splash.style.transform = 'translateY(-100%)';
+            setTimeout(() => {
+                splash.style.display = 'none';
+                if(localStorage.getItem('apniApp_sessionActive') === 'true') {
+                    mainApp.style.display = 'flex';
+                    updateUIForUser(false);
+                } else {
+                    authScreen.style.display = 'flex';
+                }
+            }, 800);
+        }, 1800);
+    });
+
+    // --- TAB NAV ROUTING ---
+    function switchTabRouting(targetViewId, element) {
+        const views = ['home', 'tickets', 'winners', 'support', 'settings', 'ceo'];
+        views.forEach(v => {
+            const viewEl = document.getElementById('view-' + v);
+            if(viewEl) viewEl.style.display = 'none';
+        });
+        
+        document.getElementById('view-' + targetViewId).style.display = 'block';
+        
+        if(element) {
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
+    }
+
+    // --- LIVE GRAPHICS UI AND LOCAL RE-RENDER NODE ---
+    function updateUIForUser(shouldPushToCloud = false) {
+        document.getElementById('username-display').innerText = currentUsername;
+        document.getElementById('sidebar-username-title').innerText = "@" + currentUsername;
+        document.getElementById('wallet-amount').innerText = currentBalance;
+        document.getElementById('sidebar-wallet-view').innerText = "Rs. " + currentBalance;
+        
+        localStorage.setItem('apniApp_balance', currentBalance);
+        
+        if (shouldPushToCloud && typeof window.cloudSyncUserBalance === 'function') {
+            window.cloudSyncUserBalance(currentUsername, currentBalance, purchasedTickets);
+        }
+
+        document.getElementById('sidebar-tickets-count').innerText = purchasedTickets.length + " Tokens";
+        document.getElementById('iphone-user-counter').innerText = iphoneTokensBoughtCount;
+
+        // 🔒 PERSISTENCE LAYER: Local Storage check (Ensures lock stays intact on refresh)
+        let localLockState = localStorage.getItem(`token_lock_live_${currentUsername.toLowerCase()}`);
+        let hasLocalBoughtLive = cloudBoughtLive || (localLockState === 'true');
+
+        if (liveDrawWinner) {
+            document.getElementById('counter-badge-container-live').style.display = 'none';
+            document.getElementById('winner-tag-live').style.display = 'block';
+            document.getElementById('winner-tag-live').innerText = "🏆 WINNER: @" + liveDrawWinner;
+            lockButton('live', "TOKEN CLOSED");
+        } else {
+            document.getElementById('counter-badge-container-live').style.display = 'block';
+            document.getElementById('winner-tag-live').style.display = 'none';
+            if (hasLocalBoughtLive) {
+                lockButton('live', "TOKEN ACQUIRED (1 MAX)");
+            } else {
+                resetButtonUI('live');
+            }
+        }
+
+        // Winners sub tab management
+        if(liveDrawWinner) {
+            document.getElementById('winner-announcement-text').innerText = `🎉 iPhone Winner: @${liveDrawWinner}`;
+        } else {
+            document.getElementById('winner-announcement-text').innerText = "Draw Announcement Coming Soon!";
+        }
+
+        const container = document.getElementById('tickets-list-container');
+        container.innerHTML = "";
+        
+        if(purchasedTickets.length > 0) {
+            document.getElementById('no-tickets-msg').style.display = 'none';
+            purchasedTickets.forEach(ticket => {
+                container.innerHTML += `
+                    <div class="ticket-item">
+                        <div><strong>${ticket.item}</strong><br><span style="font-size:11px; color:#64748b;">Serial Node: Token verified ✓</span></div>
+                        <span style="font-weight:700; color:#10b981; font-size:13px;">Rs. ${ticket.price}</span>
+                    </div>`;
+            });
+        } else {
+            document.getElementById('no-tickets-msg').style.display = 'block';
+        }
+    }
+
+    function lockButton(type, message) {
+        const btn = document.getElementById('live-draw-btn');
+        if(btn) {
+            btn.disabled = true;
+            btn.innerText = message;
+        }
+    }
+
+    function resetButtonUI(type) {
+        const btn = document.getElementById('live-draw-btn');
+        if(btn) {
+            btn.disabled = false;
+            btn.innerText = `BUY ENTRY TOKEN (Rs. ${liveDrawPrice})`;
+        }
+    }
+
+    // --- PURCHASE ENGINE (PERMANENT LOCK RULE) ---
+    async function triggerTicketPurchase(type) {
+        if (type === 'live') {
+            let localLockState = localStorage.getItem(`token_lock_live_${currentUsername.toLowerCase()}`);
+            let hasLocalBoughtLive = cloudBoughtLive || (localLockState === 'true');
+            
+            if (hasLocalBoughtLive) {
+                alert("You have already acquired a token for this deal!");
+                return;
+            }
+            if (currentBalance < liveDrawPrice) {
+                alert("Insufficient Balance!");
+                return;
+            }
+            
+            currentBalance -= liveDrawPrice;
+            purchasedTickets.push({ item: lastTrackedLiveTitle, price: liveDrawPrice, user: currentUsername, type: 'live' });
+            
+            // Save local lock & set cloud lock flag
+            localStorage.setItem(`token_lock_live_${currentUsername.toLowerCase()}`, "true");
+            cloudBoughtLive = true;
+
+            if (typeof window.syncUserTokenLockToCloud === 'function') {
+                await window.syncUserTokenLockToCloud(currentUsername, 'live', true);
+            }
+            if (typeof window.cloudIncrementGlobalCounter === 'function') {
+                await window.cloudIncrementGlobalCounter('live');
+            }
+            updateUIForUser(true);
+            alert("Token Acquired Successfully for iPhone Deal!");
+        }
+    }
+
+    // --- LIVE FIREBASE DEPOSIT SYSTEM INTEGRATION ---
+    function submitDepositSlipProof() {
+        let amount = parseInt(document.getElementById('dep-amount-input').value);
+        if(!amount || amount < 100) {
+            alert("Minimum deposit limit Rs. 100 hai!");
+            return;
+        }
+        if(!currentUploadedSlipBase64) {
+            alert("Please upload your payment receipt screenshot!");
+            return;
+        }
+        let customSlipCode = "SLP-" + Math.floor(10000 + Math.random() * 90000);
+        document.getElementById('invoice-amount-text').innerText = "Rs. " + amount;
+        document.getElementById('invoice-code-text').innerText = "#" + customSlipCode;
+        document.getElementById('deposit-form-view').style.display = 'none';
+        document.getElementById('deposit-slip-view').style.display = 'block';
+
+        if(typeof window.cloudSubmitDepositRequest === 'function') {
+            window.cloudSubmitDepositRequest(currentUsername, amount, currentUploadedSlipBase64, customSlipCode);
+        }
+    }
+
+    // --- PHOTO UPLOAD OPTION IN CEO PANEL ---
+    function uploadLiveDealPhoto(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Img = e.target.result;
+                document.getElementById('live-draw-img').src = base64Img;
+                if(typeof window.cloudUploadMediaData === 'function') {
+                    window.cloudUploadMediaData('live', base64Img);
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // --- CONFIG DETAILS SETTERS FROM CEO PANEL ---
+    function updateTokenPricesAndDetailsOffline(targetType) {
+        if(targetType === 'live') {
+            const liveTitleIn = document.getElementById('ceo-live-title-input').value.trim();
+            const livePriceIn = parseInt(document.getElementById('ceo-live-price-input').value) || 1;
+
+            if(liveTitleIn !== lastTrackedLiveTitle) {
+                lastTrackedLiveTitle = liveTitleIn;
+                liveDrawWinner = "";
+                localStorage.removeItem(`token_lock_live_${currentUsername.toLowerCase()}`);
+                document.getElementById('winner-tag-live').style.display = 'none';
+                resetButtonUI('live');
+                localStorage.setItem('deal_title_live', lastTrackedLiveTitle);
+            }
+            liveDrawPrice = livePriceIn;
+            localStorage.setItem('deal_price_live', liveDrawPrice);
+            document.getElementById('live-draw-title').innerText = lastTrackedLiveTitle;
+            document.getElementById('live-draw-price-display').innerText = liveDrawPrice;
+            
+            if(!document.getElementById('live-draw-btn').disabled) {
+                document.getElementById('live-draw-btn').innerText = `BUY ENTRY TOKEN (Rs. ${liveDrawPrice})`;
+            }
+        }
+    }
+
+    function triggerAdminCloudSave() {
+        if(typeof window.cloudUpdateAdminSettings === 'function') {
+            window.cloudUpdateAdminSettings("", lastTrackedLiveTitle, 0, liveDrawPrice, "", liveDrawWinner);
+        } else {
+            alert("Local State Saved!");
+        }
+    }
+
+    function changePromoVideoOffline(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if(typeof window.cloudUploadMediaData === 'function') {
+                    window.cloudUploadMediaData('video', e.target.result);
+                } else {
+                    document.getElementById('video-source').src = e.target.result;
+                    document.getElementById('app-promo-video').load();
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // --- SECURE SYSTEM AUTH PROCESSING ---
+    function processAuthAction() {
+        const u = document.getElementById('auth-user').value.trim();
+        const p = document.getElementById('auth-pass').value;
+        const e = document.getElementById('auth-email').value.trim();
+
+        if(!u || !p || (isSignUpMode && !e)) {
+            alert("Meharbani karke tamam credentials theek enter karain!");
+            return;
+        }
+
+        if(isSignUpMode) {
+            if(typeof window.cloudRegisterUser === 'function') {
+                window.cloudRegisterUser(u, p, e);
+            } else {
+                alert("Account created offline!");
+                toggleAuthMode();
+            }
+        } else {
+            if(typeof window.cloudLoginUser === 'function') {
+                window.cloudLoginUser(u, p);
+            } else {
+                if(p === "1122") {
+                    executeLoginSessionSetup(u);
+                } else {
+                    alert("Ghalat password!");
+                }
+            }
+        }
+    }
+
+    function executeLoginSessionSetup(verifiedUser) {
+        currentUsername = verifiedUser;
+        localStorage.setItem('apniApp_username', currentUsername);
+        localStorage.setItem('apniApp_sessionActive', 'true');
+        
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'flex';
+        
+        updateUIForUser(false);
+    }
+
+    // --- LUCKY DRAW DRAWING ENGINE ---
+    function executeCeoLuckySpin() {
+        const targetDeal = document.getElementById('ceo-draw-deal-select').value;
+        const wheel = document.getElementById('spin-wheel');
+        const degrees = Math.floor(2000 + Math.random() * 2000);
+        wheel.style.transform = `rotate(${degrees}deg)`;
+        
+        setTimeout(() => {
+            if(typeof window.cloudFetchAllUsersAndPickWinner === 'function') {
+                window.cloudFetchAllUsersAndPickWinner(targetDeal);
+            } else {
+                alert("Offline Spin complete! Live cloud engine recommended.");
+            }
+        }, 4000);
+    }
+
+    function executeManualCeoReset() {
+        const selectedDrawType = document.getElementById('ceo-draw-deal-select').value;
+        const selectedDealTitle = lastTrackedLiveTitle;
+
+        if (confirm(`Kya aap waqai "${selectedDealTitle}" ko completely reset karna chahte hain?`)) {
+            liveDrawWinner = "";
+            iphoneTokensBoughtCount = 0;
+            cloudBoughtLive = false;
+            localStorage.removeItem(`token_lock_live_${currentUsername.toLowerCase()}`);
+            document.getElementById('winner-tag-live').style.display = 'none';
+            resetButtonUI('live');
+            
+            purchasedTickets = purchasedTickets.filter(t => !(t.type === selectedDrawType && t.item === selectedDealTitle));
+            
+            if (typeof window.cloudUpdateAdminSettings === 'function') {
+                window.cloudUpdateAdminSettings("", lastTrackedLiveTitle, 0, liveDrawPrice, "", liveDrawWinner, true, selectedDrawType);
+            }
+            updateUIForUser(true);
+            alert(`✓ Success! "${selectedDealTitle}" successfully reset live on cloud.`);
+        }
+    }
+
+    function copyTillIdToClipboard() {
+        const tillIdText = document.getElementById('merchant-till-id-value').innerText;
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = tillIdText;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        try {
+            document.execCommand('copy');
+            alert("✓ Till ID (" + tillIdText + ") successfully copied!");
+        } catch (err) {
+            alert("Could not copy text automatically.");
+        }
+        document.body.removeChild(tempTextArea);
+    }
+
+    // --- SECRET CLICK HANDLER ---
+    function handleHeaderSecretClick() {
+        secretHeaderClickCount++;
+        clearTimeout(secretHeaderTimeout);
+        secretHeaderTimeout = setTimeout(() => {
+            secretHeaderClickCount = 0;
+        }, 3000);
+        
+        if(secretHeaderClickCount === 4) {
+            secretHeaderClickCount = 0;
+            clearTimeout(secretHeaderTimeout);
+            verifyAndOpenCeoPanel();
+        }
+    }
+
+    function openRealAppSettingsView() {
+        closeSidebarDrawer();
+        switchTabRouting('settings', null);
+    }
+
+    function toggleAuthMode() {
+        const titleText = document.getElementById('auth-title-text');
+        const emailInput = document.getElementById('auth-email');
+        const actionBtn = document.getElementById('auth-action-btn');
+        const switcherLink = document.getElementById('auth-switcher');
+        isSignUpMode = !isSignUpMode;
+        
+        if(isSignUpMode) {
+            titleText.innerText = "Create New Account";
+            emailInput.style.display = "block";
+            emailInput.placeholder = "Enter your Email Address";
+            emailInput.type = "email";
+            actionBtn.innerText = "Register Account";
+            switcherLink.innerHTML = "Already have an account? <span>Log In</span>";
+        } else {
+            titleText.innerText = "Log In";
+            emailInput.style.display = "none";
+            actionBtn.innerText = "Verify & Enter";
+            switcherLink.innerHTML = "Don't have an account? <span onclick='toggleAuthMode()'>Create New Account</span>";
+        }
+    }
+
+    function verifyAndOpenCeoPanel() {
+        if(currentUsername.toLowerCase() === 'ceo' || currentUsername.toLowerCase() === 'admin') {
+            switchTabRouting('ceo', null);
+        } else {
+            let pass = prompt("Enter Premium Access PIN Node:");
+            if(pass === '7869') {
+                switchTabRouting('ceo', null);
+            } else {
+                alert("Access Denied!");
+            }
+        }
+    }
+
+    function triggerAppLogoutSequence() {
+        localStorage.removeItem('apniApp_sessionActive');
+        cloudBoughtLive = false;
+        lastTrackedLiveTitle = "iPhone 15 Pro (256GB)";
+        liveDrawPrice = 1;
+        liveDrawWinner = "";
+        
+        document.getElementById('winner-tag-live').style.display = 'none';
+        document.getElementById('live-draw-btn').disabled = false;
+        
+        updateTokenPricesAndDetailsOffline('live');
+        closeSidebarDrawer();
+        
+        document.getElementById('main-app').style.display = 'none';
+        document.getElementById('auth-screen').style.display = 'flex';
+    }
+
+    function openDepositModal() {
+        document.getElementById('deposit-form-view').style.display = 'block';
+        document.getElementById('deposit-slip-view').style.display = 'none';
+        document.getElementById('dep-amount-input').value = '';
+        document.getElementById('slip-preview-img').style.display = 'none';
+        document.getElementById('slip-file-loader').value = '';
+        currentUploadedSlipBase64 = "";
+        document.getElementById('depositModal').style.display = 'flex';
+    }
+
+    function closeDepositModal() {
+        document.getElementById('depositModal').style.display = 'none';
+    }
+
+    function previewDepositSlip(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('slip-preview-img');
+                img.src = e.target.result;
+                img.style.display = 'block';
+                currentUploadedSlipBase64 = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // --- REPLIES PORTAL HANDLERS ---
+    function toggleVoiceRecordingOffline() {
+        const btn = document.getElementById('voice-record-btn');
+        const txt = document.getElementById('voice-btn-text');
+        
+        if(!isVoiceRecordingActive) {
+            isVoiceRecordingActive = true;
+            btn.classList.add('recording');
+            txt.innerText = "Recording...";
+        } else {
+            isVoiceRecordingActive = false;
+            btn.classList.remove('recording');
+            txt.innerText = "Voice Rec";
+            tempAudioRecordedState = true;
+            document.getElementById('complaint-audio-attached-preview').style.display = "block";
+        }
+    }
+
+    function handleComplaintScreenshot(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                tempAttachedScreenshotBase64 = e.target.result;
+                document.getElementById('complaint-img-attached-preview').style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function submitMultimediaComplaint() {
+        const msgText = document.getElementById('complaint-text-input').value.trim();
+        if(!msgText && !tempAttachedScreenshotBase64 && !tempAudioRecordedState) {
+            alert("Kuch write karain ya voice note record karain ticket submit karne ke liye!");
+            return;
+        }
+
+        if(typeof window.cloudSubmitSupportTicket === 'function') {
+            window.cloudSubmitSupportTicket(currentUsername, msgText, tempAttachedScreenshotBase64, tempAudioRecordedState);
+            alert("✓ Support Portal Ticket transmitted securely to cloud framework!");
+        } else {
+            alert("Ticket saved offline!");
+        }
+
+        document.getElementById('complaint-text-input').value = "";
+        document.getElementById('complaint-img-attached-preview').style.display = 'none';
+        document.getElementById('complaint-audio-attached-preview').style.display = 'none';
+        tempAttachedScreenshotBase64 = "";
+        tempAudioRecordedState = false;
+    }
+
+    function openLightbox(imgSrc) {
+        document.getElementById('lightboxTargetImg').src = imgSrc;
+        document.getElementById('globalLightbox').style.display = 'flex';
+    }
+
+    function closeLightbox() {
+        document.getElementById('globalLightbox').style.display = 'none';
+    }
+
+    // --- RENDER FUNCTIONS FOR LEDGER AND PORTAL DESK ---
+    function renderLiveDepositRequestsList(requestsArray) {
+        const container = document.getElementById('ceo-approvals-list-container');
+        if(!container) return;
+        if(requestsArray.length === 0) {
+            container.innerHTML = '<p style="color: #94a3b8; font-size: 11px; text-align: center; padding: 10px 0;">No pending deposit receipts requested.</p>';
+            return;
+        }
+        container.innerHTML = "";
+        requestsArray.forEach(req => {
+            let rowHtml = `
+                <div class="approval-row" id="approval-node-${req.id}">
+                    <div style="display:flex; justify-content:between; font-weight:700; color:#334155; margin-bottom:4px;">
+                        <span>User: @${req.user}</span>
+                        <span style="color:#10b981; margin-left:auto;">Rs. ${req.amount}</span>
+                    </div>
+                    <div style="font-size:10px; color:#64748b; font-family:monospace; margin-bottom:4px;">Ref: ${req.code}</div>
+                    <img src="${req.screenshot}" class="approval-screenshot" onclick="openLightbox('${req.screenshot}')" title="Click to enlarge">
+                    <button class="approve-btn" onclick="executeCloudLedgerApproval('${req.id}', '${req.user}', ${req.amount})">APPROVE & ADD CASH</button>
+                </div>`;
+            container.innerHTML += rowHtml;
+        });
+    }
+
+    function executeCloudLedgerApproval(reqId, userNode, cashAmount) {
+        if(confirm(`Kya aap waqai Rs. ${cashAmount} user @${userNode} ke account me credit karna chahte hain?`)) {
+            if(typeof window.cloudFinalizeUserDepositRequest === 'function') {
+                window.cloudFinalizeUserDepositRequest(reqId, userNode, cashAmount);
+            } else {
+                if(userNode.toLowerCase() === currentUsername.toLowerCase()) {
+                    currentBalance += cashAmount;
+                    updateUIForUser(true);
+                }
+                alert("Offline execution complete!");
+            }
+        }
+    }
+
+    function executeCeoTicketReplySubmit(ticketId) {
+        const txtField = document.getElementById(`ceo-reply-field-${ticketId}`);
+        const replyStr = txtField.value.trim();
+        if(!replyStr) {
+            alert("Reply message box clear hai!");
+            return;
+        }
+        if(typeof window.cloudSubmitCeoReply === 'function') {
+            window.cloudSubmitCeoReply(ticketId, replyStr);
+        } else {
+            alert("Offline response logged!");
+        }
+    }
+
+    function openSidebarDrawer() {
+        document.getElementById('sidebarOverlay').style.display = 'block';
+        setTimeout(() => { document.getElementById('sidebarOverlay').style.opacity = '1'; }, 5);
+        document.getElementById('sidebarDrawer').style.left = '0';
+    }
+
+    function closeSidebarDrawer() {
+        document.getElementById('sidebarOverlay').style.opacity = '0';
+        document.getElementById('sidebarDrawer').style.left = '-280px';
+        setTimeout(() => { document.getElementById('sidebarOverlay').style.display = 'none'; }, 200);
+    }
+</script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyClBeyLljkk4ce4RANwBJYI9A9-33PhWsg",
+        authDomain: "apniapp-f5026.firebaseapp.com",
+        projectId: "apniapp-f5026",
+        storageBucket: "apniapp-f5026.firebasestorage.app",
+        messagingSenderId: "207960984180",
+        appId: "1:207960984180:web:3de5f0d8e18cd9d44a5f21"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let lastProcessedResetTriggerId = "";
+
+    window.cloudRegisterUser = async function(username, password, email) {
+        const userRef = doc(db, "users", username.toLowerCase());
+        try {
+            const docSnap = await getDoc(userRef);
+            if (docSnap.exists()) {
+                alert("Error: Username pehle se register hai!");
+                return;
+            }
+            await setDoc(userRef, {
+                username: username,
+                password: password,
+                email: email.toLowerCase(),
+                balance: 0,
+                purchasedTickets: [],
+                hasBoughtLive: false,
+                createdAt: new Date().toISOString()
+            });
+            alert("Account Created Successfully on Cloud!");
+            if (typeof toggleAuthMode === 'function') toggleAuthMode();
+        } catch (error) {
+            alert("Database Error: " + error.message);
+        }
+    };
+
+    window.cloudLoginUser = async function(username, password) {
+        const userRef = doc(db, "users", username.toLowerCase());
+        try {
+            const docSnap = await getDoc(userRef);
+            if (!docSnap.exists()) {
+                alert("Account maujood nahi hai! Pehle Register karain.");
+                return;
+            }
+            const data = docSnap.data();
+            if(data.password === password) {
+                currentBalance = data.balance || 0;
+                purchasedTickets = data.purchasedTickets || [];
+                cloudBoughtLive = data.hasBoughtLive || false;
+                
+                if (cloudBoughtLive) {
+                    localStorage.setItem(`token_lock_live_${username.toLowerCase()}`, "true");
+                }
+                
+                if (typeof executeLoginSessionSetup === 'function') {
+                    executeLoginSessionSetup(data.username);
+                }
+            } else {
+                alert("Ghalat password!");
+            }
+        } catch (e) {
+            alert("Authentication failed: " + e.message);
+        }
+    };
+
+    window.cloudSyncUserBalance = async function(username, targetBalance, ticketsList) {
+        const userRef = doc(db, "users", username.toLowerCase());
+        try {
+            await updateDoc(userRef, {
+                balance: targetBalance,
+                purchasedTickets: ticketsList
+            });
+        } catch(e) {
+            console.error("Cloud syncing anomaly: ", e);
+        }
+    };
+
+    window.syncUserTokenLockToCloud = async function(username, type, state) {
+        const userRef = doc(db, "users", username.toLowerCase());
+        try {
+            if (type === 'live') {
+                await updateDoc(userRef, { hasBoughtLive: state });
+            }
+        } catch (e) {
+            console.error("Token cloud lock update mismatch: ", e);
+        }
+    };
+
+    window.cloudIncrementGlobalCounter = async function(type) {
+        const adminRef = doc(db, "appSettings", "globalDeals");
+        try {
+            if (type === 'live') {
+                await updateDoc(adminRef, { iphoneTokensBoughtCount: increment(1) });
+            }
+        } catch (e) {
+            console.error("Counter Increment Error: ", e);
+        }
+    };
+
+    window.cloudUpdateAdminSettings = async function(mainTitle, liveTitle, mPrice, lPrice, mainWinner = "", liveWinner = "", isResetAction = false, resetType = "") {
+        const adminRef = doc(db, "appSettings", "globalDeals");
+        try {
+            let payload = {
+                lastTrackedLiveTitle: liveTitle,
+                liveDrawPrice: Number(lPrice) || 0,
+                liveDrawWinner: liveWinner,
+                updatedAt: new Date().toISOString()
+            };
+            if (isResetAction) {
+                if (resetType === 'live') payload.iphoneTokensBoughtCount = 0;
+                payload.resetTrigger = resetType + "_" + Math.floor(100000 + Math.random() * 900000);
+            }
+            await updateDoc(adminRef, payload);
+        } catch (error) {
+            await setDoc(adminRef, {
+                lastTrackedLiveTitle: liveTitle,
+                liveDrawPrice: Number(lPrice) || 0,
+                liveDrawWinner: liveWinner,
+                iphoneTokensBoughtCount: 0,
+                resetTrigger: "",
+                updatedAt: new Date().toISOString()
+            });
+        }
+    };
+
+    window.cloudUploadMediaData = async function(mediaType, base64Data) {
+        const mediaRef = doc(db, "appSettings", "cloudMedia");
+        try {
+            if(mediaType === 'video') await updateDoc(mediaRef, { video: base64Data });
+            if(mediaType === 'live') await updateDoc(mediaRef, { live: base64Data });
+        } catch(e) {
+            let payload = {};
+            if(mediaType === 'video') payload.video = base64Data;
+            if(mediaType === 'live') payload.live = base64Data;
+            await setDoc(mediaRef, payload);
+        }
+        alert("✓ Broadcast Media Stream updated on Live Firebase successfully!");
+    };
+
+    window.cloudSubmitDepositRequest = async function(username, amt, slipB64, verificationCode) {
+        try {
+            await addDoc(collection(db, "depositRequests"), {
+                user: username,
+                amount: amt,
+                screenshot: slipB64,
+                code: verificationCode,
+                createdAt: new Date().toISOString()
+            });
+        } catch(e) {
+            alert("Error sending transaction proof: " + e.message);
+        }
+    };
+
+    window.cloudFinalizeUserDepositRequest = async function(requestId, targetUser, creditAmount) {
+        try {
+            await deleteDoc(doc(db, "depositRequests", requestId));
+            const targetUserRef = doc(db, "users", targetUser.toLowerCase());
+            const userSnap = await getDoc(targetUserRef);
+            
+            if(userSnap.exists()) {
+                let prevBalance = userSnap.data().balance || 0;
+                let newBal = prevBalance + creditAmount;
+                await updateDoc(targetUserRef, { balance: newBal });
+                
+                if(targetUser.toLowerCase() === currentUsername.toLowerCase()) {
+                    currentBalance = newBal;
+                    updateUIForUser(false);
+                }
+                alert(`✓ Ledger verified! Rs. ${creditAmount} successfully credited to @${targetUser}`);
+            }
+        } catch(e) {
+            alert("Ledger approval action error: " + e.message);
+        }
+    };
+
+    window.cloudFetchAllUsersAndPickWinner = async function(dealType) {
+        try {
+            const adminRef = doc(db, "appSettings", "globalDeals");
+            const snapshot = await getDoc(doc(db, "appSettings", "globalDeals"));
+            let currentIphoneTitle = lastTrackedLiveTitle;
+            
+            if(snapshot.exists()){
+                currentIphoneTitle = snapshot.data().lastTrackedLiveTitle || lastTrackedLiveTitle;
+            }
+
+            let pool = [];
+            const usersCollectionRef = collection(db, "users");
+            
+            onSnapshot(usersCollectionRef, async (querySnap) => {
+                pool = [];
+                querySnap.forEach((userDoc) => {
+                    const userData = userDoc.data();
+                    const tickets = userData.purchasedTickets || [];
+                    tickets.forEach(t => {
+                        if(dealType === 'live' && t.type === 'live' && t.item === currentIphoneTitle) {
+                            pool.push(userData.username);
+                        }
+                    });
+                });
+
+                if(pool.length === 0) {
+                    alert("Is Deal ke liye koi ticket holder maujood nahi hai!");
+                    return;
+                }
+
+                const randomIndex = Math.floor(Math.random() * pool.length);
+                const pickedWinnerName = pool[randomIndex];
+
+                if(dealType === 'live') {
+                    liveDrawWinner = pickedWinnerName;
+                    await updateDoc(adminRef, { liveDrawWinner: liveDrawWinner });
+                }
+                alert(`🎉 Draw Completed! Winner is: @${pickedWinnerName}`);
+                updateUIForUser(false);
+            });
+
+        } catch (e) {
+            console.error("Winner selection system exception: ", e);
+        }
+    };
+
+    window.cloudSubmitSupportTicket = async function(username, textMsg, base64Img, hasAudio) {
+        try {
+            await addDoc(collection(db, "supportTickets"), {
+                user: username,
+                text: textMsg,
+                screenshot: base64Img || "",
+                voice: hasAudio,
+                ceoReply: "",
+                createdAt: new Date().toISOString()
+            });
+        } catch(e) {
+            console.error("Support transmission breakdown: ", e);
+        }
+    };
+
+    window.cloudSubmitCeoReply = async function(ticketId, replyString) {
+        try {
+            const ticketRef = doc(db, "supportTickets", ticketId);
+            await updateDoc(ticketRef, { ceoReply: replyString });
+        } catch(e) {
+            alert("CEO reply transmission mismatch: " + e.message);
+        }
+    };
+
+    // --- REALTIME LISTENERS ---
+    onSnapshot(collection(db, "depositRequests"), (snapshot) => {
+        let requestsList = [];
+        snapshot.forEach((doc) => {
+            requestsList.push({ id: doc.id, ...doc.data() });
+        });
+        renderLiveDepositRequestsList(requestsList);
+    });
+
+    onSnapshot(collection(db, "supportTickets"), (snapshot) => {
+        let ticketsList = [];
+        snapshot.forEach((doc) => {
+            ticketsList.push({ id: doc.id, ...doc.data() });
+        });
+        ticketsList.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        
+        if (typeof renderUserChatSubsystem === 'function') renderUserChatSubsystem(ticketsList);
+        if (typeof renderCeoComplaintsPortal === 'function') renderCeoComplaintsPortal(ticketsList);
+    });
+
+    onSnapshot(doc(db, "appSettings", "globalDeals"), (docSnap) => {
+        if(docSnap.exists()) {
+            const globalData = docSnap.data();
+            
+            liveDrawWinner = globalData.liveDrawWinner || "";
+            iphoneTokensBoughtCount = globalData.iphoneTokensBoughtCount || 0;
+            
+            if(globalData.lastTrackedLiveTitle) {
+                lastTrackedLiveTitle = globalData.lastTrackedLiveTitle;
+                document.getElementById('live-draw-title').innerText = lastTrackedLiveTitle;
+            }
+            if(globalData.liveDrawPrice) {
+                liveDrawPrice = globalData.liveDrawPrice;
+                document.getElementById('live-draw-price-display').innerText = liveDrawPrice;
+            }
+
+            if(globalData.resetTrigger && globalData.resetTrigger !== lastProcessedResetTriggerId) {
+                lastProcessedResetTriggerId = globalData.resetTrigger;
+                const parts = globalData.resetTrigger.split('_');
+                if(parts[0] === 'live') {
+                    cloudBoughtLive = false;
+                    localStorage.removeItem(`token_lock_live_${currentUsername.toLowerCase()}`);
+                }
+            }
+
+            updateUIForUser(false);
+        }
+    });
+
+    onSnapshot(doc(db, "users", currentUsername.toLowerCase()), (userSnap) => {
+        if(userSnap.exists()) {
+            const userData = userSnap.data();
+            currentBalance = userData.balance || 0;
+            purchasedTickets = userData.purchasedTickets || [];
+            cloudBoughtLive = userData.hasBoughtLive || false;
+
+            if (cloudBoughtLive) {
+                localStorage.setItem(`token_lock_live_${currentUsername.toLowerCase()}`, "true");
+            }
+
+            const localLockLive = localStorage.getItem(`token_lock_live_${currentUsername.toLowerCase()}`) === 'true';
+            if (localLockLive && !cloudBoughtLive && !liveDrawWinner) {
+                // Keep locked state if token was purchased
+            }
+
+            updateUIForUser(false);
+        }
+    });
+
+    // 📺 REAL-TIME REAL CLOUD MEDIA SNAPSHOT CONTROLLER
+    onSnapshot(doc(db, "appSettings", "cloudMedia"), (docSnap) => {
+        if(docSnap.exists()) {
+            const mediaData = docSnap.data();
+            if(mediaData.live) {
+                document.getElementById('live-draw-img').src = mediaData.live;
+            }
+            if(mediaData.video) {
+                const videoElement = document.getElementById('app-promo-video');
+                const videoSource = document.getElementById('video-source');
+                if(videoSource.src !== mediaData.video) {
+                    videoSource.src = mediaData.video;
+                    videoElement.load();
+                    videoElement.play().catch(e => console.log("Auto-play prevented"));
+                }
+            }
+        }
+    });
+</script>
+
+<script>
+    function renderUserChatSubsystem(ticketsArray) {
+        const historyContainer = document.getElementById('user-chat-history-box');
+        if(!historyContainer) return;
+        
+        const myTickets = ticketsArray.filter(t => t.user.toLowerCase() === currentUsername.toLowerCase());
+        if(myTickets.length === 0) {
+            historyContainer.innerHTML = '<div class="bubble ceo" id="empty-chat-placeholder">Welcome to ApniApp Care. Your support logs appear instantly here!</div>';
+            return;
+        }
+        
+        historyContainer.innerHTML = "";
+        myTickets.forEach(t => {
+            if(t.text || t.screenshot || t.voice) {
+                let userBubble = `<div class="bubble user">`;
+                if(t.text) userBubble += `<div>${t.text}</div>`;
+                if(t.screenshot) userBubble += `<img src="${t.screenshot}" onclick="openLightbox('${t.screenshot}')" style="cursor:pointer;">`;
+                if(t.voice) userBubble += `<div class="audio-player-mock" onclick="alert('Playing recorded note...')"><i class="fa-solid fa-play"></i> Voice Note Submitted</div>`;
+                userBubble += `</div>`;
+                historyContainer.innerHTML += userBubble;
+            }
+
+            if(t.ceoReply) {
+                let ceoBubble = `
+                    <div class="bubble ceo">
+                        <div style="font-size:10px; font-weight:800; color:#fbbf24; margin-bottom:2px;"><i class="fa-solid fa-user-tie"></i> Admin Reply:</div>
+                        <div>${t.ceoReply}</div>
+                    </div>`;
+                historyContainer.innerHTML += ceoBubble;
+            }
+        });
+        historyContainer.scrollTop = historyContainer.scrollHeight;
+    }
+
+    function renderCeoComplaintsPortal(ticketsArray) {
+        const ceoContainer = document.getElementById('ceo-complaints-list');
+        if(!ceoContainer) return;
+        if(ticketsArray.length === 0) {
+            ceoContainer.innerHTML = '<p style="color: #94a3b8; font-size: 11px; text-align: center; padding: 6px 0;">No active user complaints found.</p>';
+            return;
+        }
+        ceoContainer.innerHTML = "";
+        ticketsArray.forEach(t => {
+            if(!t.ceoReply) {
+                let ceoRowHtml = `
+                    <div class="complaint-row" id="ceo-row-${t.id}" style="border-left: 4px solid #ef4444; background:#fff; margin-bottom:8px;">
+                        <div style="font-weight:700; color:#b91c1c; margin-bottom:4px; display:flex; justify-content:space-between;">
+                            <span>From: @${t.user}</span>
+                            <span style="font-size:10px; color:#64748b;">ID: ${t.id.substring(0,6)}</span>
+                        </div>`;
+                if(t.text) ceoRowHtml += `<div style="font-size:12px; margin-bottom:4px; color:#0f172a;">"${t.text}"</div>`;
+                if(t.screenshot) ceoRowHtml += `<img src="${t.screenshot}" style="width:100%; max-height:100px; object-fit:cover; border-radius:6px; margin:4px 0; border:1px solid #cbd5e1; cursor:pointer;" onclick="openLightbox('${t.screenshot}')">`;
+                if(t.voice) ceoRowHtml += `<div class="audio-player-mock" style="background:#f1f5f9; color:#ef4444; margin-bottom:6px; cursor:pointer;" onclick="alert('Playing voice note...')"><i class="fa-solid fa-volume-high"></i> <strong>Listen Voice Note (0:03)</strong></div>`;
+                ceoRowHtml += `
+                        <div style="margin-top:8px; display:flex; gap:6px;">
+                            <input type="text" id="ceo-reply-field-${t.id}" placeholder="Type solution reply..." style="flex:1; padding:6px; border:1px solid #cbd5e1; border-radius:6px; font-size:11.5px; color:#000;">
+                            <button class="approve-btn" style="width:70px; background:#1e293b;" onclick="executeCeoTicketReplySubmit('${t.id}')">REPLY</button>
+                        </div>
+                    </div>`;
+                ceoContainer.innerHTML += ceoRowHtml;
+            }
+        });
+    }
+</script>
+</body>
+</html>
